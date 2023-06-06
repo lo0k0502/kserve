@@ -8,6 +8,9 @@ FROM ${BASE_IMAGE} as builder
 ARG POETRY_HOME=/opt/poetry
 ARG POETRY_VERSION=1.4.0
 
+RUN apt-get update && \
+    apt-get -y install gcc mono-mcs
+
 RUN python3 -m venv ${POETRY_HOME} && ${POETRY_HOME}/bin/pip install poetry==${POETRY_VERSION}
 ENV PATH="$PATH:${POETRY_HOME}/bin"
 
@@ -23,7 +26,7 @@ COPY kserve kserve
 RUN cd kserve && poetry install --no-interaction --no-cache
 
 COPY artexplainer/pyproject.toml artexplainer/poetry.lock artexplainer/
-RUN cd artexplainer && poetry install --no-root --no-interaction --no-cache
+RUN cd artexplainer && poetry add torch && poetry install --no-root --no-interaction --no-cache
 COPY artexplainer artexplainer
 RUN cd artexplainer && poetry install --no-interaction --no-cache
 
